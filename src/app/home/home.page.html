@@ -1,0 +1,94 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Contact
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button size="small" color="primary" fill="clear" (click)="goToAddItem()">
+        <ion-icon size="large" name="add"></ion-icon>
+      </ion-button>
+      <!-- <ion-button size="small" color="primary" fill="clear" href="/additem" routerDirection="forward">Add Item</ion-button> -->
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list lines="inset">
+    <ion-item-group>
+      <ion-item-divider>
+        <ion-label>A</ion-label>
+      </ion-item-divider>
+      <ion-item-sliding *ngFor="let contact of contacts; let i=index">
+
+        <ion-item href="/additem/{{contact.id}}" routerDirection="forward">
+          <div *ngIf="contact.firstname && contact.lastname">
+            <ion-label>{{contact.lastname}} <b>{{contact.firstname}}</b></ion-label>
+          </div>
+          <div *ngIf="!contact.firstname || !contact.lastname">
+            <div *ngIf="!contact.firstname">
+              <div *ngIf="!contact.lastname">
+                <div *ngIf="!contact.companyname">
+                  <div *ngIf="!contact.email">
+                    <div *ngIf="!contact.phonenumber">
+                      <ion-label><b>{{contact.lastname}}</b></ion-label>
+                    </div>
+                  </div>
+                  <div *ngIf="contact.email">
+                    <ion-label><b>{{contact.email}}</b></ion-label>
+                  </div>
+                </div>
+                <div *ngIf="contact.companyname">
+                  <ion-label><b>{{contact.companyname}}</b></ion-label>
+                </div>
+              </div>
+              <div *ngIf="contact.lastname">
+                <ion-label><b>{{contact.lastname}}</b></ion-label>
+              </div>
+            </div>
+            <div *ngIf="contact.firstname">
+              <ion-label><b>{{contact.firstname}}</b></ion-label>
+            </div>
+          </div>
+        </ion-item>
+        <!-- <ion-item-options side="start">
+          <ion-item-option (click)="favorite(item)">Favorite</ion-item-option>
+          <ion-item-option color="danger" (click)="share(item)">Share</ion-item-option>
+        </ion-item-options> -->
+
+        <ion-item-options side="end">
+          <ion-item-option (click)=delete(contact.id)>Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-item-group>
+  </ion-list>
+
+
+  <!-- <ion-list >
+    <ion-item-group>
+      <ion-item-divider>
+        <ion-label>A</ion-label>
+      </ion-item-divider>
+
+      <ion-item *ngFor="let contact of db.contacts; let i=index">
+        <ion-label>{{contact.firstname}} <b>{{contact.lastname}}</b></ion-label>
+      </ion-item>
+    </ion-item-group>
+
+    <ion-item-group>
+      <ion-item-divider>
+        <ion-label>B</ion-label>
+      </ion-item-divider>
+
+      <ion-item>
+        <ion-label>Bangladesh</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>Belarus</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>Belgium</ion-label>
+      </ion-item>
+    </ion-item-group>
+  </ion-list> -->
+</ion-content>

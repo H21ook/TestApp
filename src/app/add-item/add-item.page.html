@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button href="/home" routerDirection="backward">
+        <ion-icon size="large" color="primary" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>New Contact</ion-title>
+    <ion-buttons slot="end" *ngIf="isRead">
+      <ion-button fill="clear" color="primary" (click)="edit()"> Edit</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-row>
+    <div style="width: 100px; height: 100px;">
+      <ion-grid class="imgPos" (click)="presentPhoto()">
+        <ion-row class="img-row" align-items-center>
+          <ion-col class="img-col" *ngIf="contact.img">
+            <img class="avatImg" src="{{contact.img}}">
+          </ion-col>
+          <ion-col *ngIf="!contact.img">
+            <div class="iconPos">
+              <ion-icon size="large" color="medium" name="images"></ion-icon><br>
+              <ion-label style="margin-top: 3px;">Add photo</ion-label>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <ion-col>
+      <ion-item lines="full">
+        <ion-input maxlength="50" [(ngModel)]="contact.firstname" [readonly]="isRead" placeholder="First name"></ion-input>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-input maxlength="50" [(ngModel)]="contact.lastname" [readonly]="isRead" placeholder="Last name"></ion-input>
+      </ion-item>
+    </ion-col>
+
+  </ion-row>
+  <ion-item lines="full">
+    <ion-input maxlength="50" [(ngModel)]="contact.companyname" [readonly]="isRead" placeholder="Company name"></ion-input>
+  </ion-item>
+  <ion-item lines="full">
+    <ion-input type="tel" maxlength="30" [(ngModel)]="contact.phonenumber" [readonly]="isRead" placeholder="Phone number"></ion-input>
+    <ion-icon *ngIf="isRead" name="call" slot="end"></ion-icon>
+  </ion-item>
+  <ion-item lines="full">
+    <ion-input type="email" maxlength="100" [(ngModel)]="contact.email" [readonly]="isRead" placeholder="Email"></ion-input>
+  </ion-item>
+  <ion-button *ngIf="!isRead" expand="full" size="default" (click)="save()" color="primary">Save</ion-button>
+
+</ion-content>
