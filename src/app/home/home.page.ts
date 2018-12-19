@@ -26,6 +26,7 @@ export class HomePage implements OnInit {
   ngOnInit(): void {
     // this.platform.ready().then(() => {
     // this.db.getContacts();
+
     this.fb.getAllContacts().subscribe(snapshot => {
       snapshot.forEach(doc => {
         this.contact = doc.data();
@@ -50,6 +51,6 @@ export class HomePage implements OnInit {
   // }
 
   goToAddItem() {
-    this.navCtrl.navigateForward('/additem');
+    this.navCtrl.navigateRoot('/additem');
   }
 }

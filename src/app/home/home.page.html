@@ -21,7 +21,7 @@
       </ion-item-divider>
       <ion-item-sliding *ngFor="let contact of contacts; let i=index">
 
-        <ion-item href="/additem/{{contact.id}}" routerDirection="forward">
+        <ion-item href="/additem/{{contact.id}}" routerDirection="root">
           <div *ngIf="contact.firstname && contact.lastname">
             <ion-label>{{contact.lastname}} <b>{{contact.firstname}}</b></ion-label>
           </div>

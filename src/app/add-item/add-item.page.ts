@@ -145,7 +145,7 @@ export class AddItemPage implements OnInit {
     //   "ln" + this.contact.lastname + "\n", "OK");
     // this.db.addContact(this.contact);
     // this.db.getContacts();
-    this.navCtrl.goBack(true);
+    this.navCtrl.navigateBack('/home');
   }
 
   edit() {
