@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, NavParams } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { AlertController } from '@ionic/angular';
-// import { DbService } from '../services/db.service';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { ActivatedRoute } from '@angular/router';
 import * as firebase from 'firebase';
 import { FbaseService } from '../services/fbase.service';
+import { CallNumber } from '@ionic-native/call-number/ngx';
+import { SMS } from '@ionic-native/sms/ngx';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { Contact } from '../models/contact';
+import { ListDataService } from '../services/list-data.service';
 
 @Component({
   selector: 'app-add-item',
@@ -14,43 +18,71 @@ import { FbaseService } from '../services/fbase.service';
 })
 export class AddItemPage implements OnInit {
 
-  contact: any = {};
-  id: any = null;
-  isRead: boolean = false;
+  private contact: any = {};
+  private id: any = null;
+  private isRead: boolean = false;
+  private displayName: string = '';
+  private isUpdated: boolean = false;
+  private device: number;
   constructor(
     private alertController: AlertController,
     private navCtrl: NavController,
-    // private db: DbService,
     private fb: FbaseService,
     private camera: Camera,
-    private route: ActivatedRoute
-  ) { }
+    private callNumber: CallNumber,
+    private platform: Platform,
+    private route: ActivatedRoute,
+    private socialSharing: SocialSharing,
+    private listDataService: ListDataService
+  ) {
+  }
 
   ngOnInit() {
-    this.id = this.route.snapshot.paramMap.get('id');
-    if (this.id) {
-      this.isRead = true;
-      // this.db.getContact(this.id);
-      // this.contact = this.db.contact;
+    this.platform.ready().then(() => {
+      this.id = this.route.snapshot.paramMap.get('id');
+      this.getContact(this.id);
+      this.device = this.getDevice();
+    });
 
-      this.fb.getContact(this.id).subscribe(snapshot => {
+  }
+
+  getDevice(): number {
+    if (this.platform.is('ios'))
+      return 1;
+    else if (this.platform.is('android'))
+      return 2;
+    else if (this.platform.is('mobile') || this.platform.is('cordova') || this.platform.is('iphone') || this.platform.is('tablet'))
+      return 3;
+    else
+      return 4;
+  }
+
+  private getContact(id) {
+    if (id) {
+      this.isRead = true;
+      this.fb.getContact(id).subscribe(snapshot => {
         this.contact = snapshot;
-        this.contact.id = this.id;
+        this.contact.id = id;
         if (this.contact.img)
           this.loadImage(this.contact.img);
+        this.displayName = this.listDataService.setDisplayName(this.contact);
       });
     } else {
       this.isRead = false;
     }
-
-
   }
 
   loadImage(imageName) {
-    var storageRef = firebase.storage().ref(imageName);
-    storageRef.getDownloadURL().then((url) => {
-      this.contact.img = url;
-    });
+    if (imageName) {
+      var storageRef = firebase.storage().ref(imageName);
+      storageRef.getDownloadURL().then((url) => {
+        this.contact.img = url;
+      });
+    }
+  }
+
+  edit() {
+    this.isRead = false;
   }
 
   takePhoto() {
@@ -71,7 +103,7 @@ export class AddItemPage implements OnInit {
     });
   }
 
-  getImage() {
+  uploadImage() {
     const options: CameraOptions = {
       quality: 100,
       destinationType: this.camera.DestinationType.DATA_URL,
@@ -88,68 +120,52 @@ export class AddItemPage implements OnInit {
     });
   }
 
-  async presentAlertConfirm() {
-    const alert = await this.alertController.create({
-      header: 'Баталгаажуулалт!',
-      message: 'Буцахдаа итгэлтэй байна уу?',
-      buttons: [
-        {
-          text: 'Үгүй',
-          role: 'cancel',
-          cssClass: 'primary',
-          handler: (blah) => {
+  // async presentAlertConfirm() {
+  //   const alert = await this.alertController.create({
+  //     header: 'Баталгаажуулалт!',
+  //     message: 'Буцахдаа итгэлтэй байна уу?',
+  //     buttons: [
+  //       {
+  //         text: 'Үгүй',
+  //         role: 'cancel',
+  //         cssClass: 'primary',
+  //         handler: (blah) => {
 
-          }
-        }, {
-          text: 'Тийм',
-          handler: () => {
-            this.navCtrl.goBack(true);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
+  //         }
+  //       }, {
+  //         text: 'Тийм',
+  //         handler: () => {
+  //           this.navCtrl.goBack(true);
+  //         }
+  //       }
+  //     ]
+  //   });
+  //   await alert.present();
+  // }
 
   async presentPhoto() {
-    const alert = await this.alertController.create({
-      header: undefined,
-      animated: true,
-      cssClass: 'alertPhoto',
-      message: '<ion-row align-items-center justify-content-center><ion-icon size="large" color="dark" name="images"></ion-icon><h4> Add photo</h4></ion-row>',
-      buttons: [
-        {
-          text: 'Take',
-          handler: () => {
-            this.takePhoto();
+    if (!this.isRead) {
+      const alert = await this.alertController.create({
+        header: undefined,
+        animated: true,
+        cssClass: 'alertPhoto',
+        message: '<ion-row align-items-center justify-content-center><ion-icon size="large" color="dark" name="images"></ion-icon><h4> Add photo</h4></ion-row>',
+        buttons: [
+          {
+            text: 'Take',
+            handler: () => {
+              this.takePhoto();
+            }
+          }, {
+            text: 'Upload',
+            handler: () => {
+              this.uploadImage();
+            }
           }
-        }, {
-          text: 'Upload',
-          handler: () => {
-            this.getImage();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  save() {
-    if (this.id) {
-      this.fb.updateContact(this.contact);
-    } else {
-      this.fb.createContact(this.contact);
+        ]
+      });
+      await alert.present();
     }
-    // this.alert(
-    //   "fn" + this.contact.firstname + "\n" +
-    //   "ln" + this.contact.lastname + "\n", "OK");
-    // this.db.addContact(this.contact);
-    // this.db.getContacts();
-    this.navCtrl.navigateBack('/home');
-  }
-
-  edit() {
-    this.isRead = false;
   }
 
   async alert(msg: string, btnText: string, headerMsg?: string, subHeaderMsg?: string) {
@@ -160,5 +176,39 @@ export class AddItemPage implements OnInit {
       buttons: [btnText]
     });
     await alert.present();
+  }
+
+  delete(): void {
+    this.fb.deleteContact(this.id);
+    this.navCtrl.navigateRoot('/home');
+  }
+
+  save(): void {
+    if (this.id) {
+      this.fb.updateContact(this.contact);
+    } else {
+      this.fb.createContact(this.contact);
+    }
+    this.navCtrl.navigateBack('/home');
+  }
+
+  call(): void {
+    console.log("call");
+    if (this.device < 4)
+      if (this.contact.phonenumber)
+        this.callNumber.callNumber(this.contact.phonenumber, true)
+          .then(res =>
+            console.log('Launched dialer!', res))
+          .catch(err =>
+            console.log('Error launching dialer', err));
+
+  }
+
+  message(): void {
+    console.log("message");
+    if (this.device < 4)
+      if (this.contact.phonenumber) {
+        this.socialSharing.shareViaSMS('', this.contact.phonenumber);
+      }
   }
 }

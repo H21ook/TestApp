@@ -1,45 +1,76 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, Platform } from '@ionic/angular';
-// import { DbService } from '../services/db.service';
-// import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
+import { NavController, Platform, Searchbar } from '@ionic/angular';
 import { FbaseService } from '../services/fbase.service';
-import { database } from 'firebase';
-import { Contact } from '../models/contact';
+import { ListDataService } from '../services/list-data.service';
+import { DbService } from '../services/db.service';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
+
 export class HomePage implements OnInit {
 
-  contacts: any = [];
-  contact: any;
+  private groups: any = [];
+  private device: number;
+  private search: string;
+  private contacts: any;
+  private result: any = [];
+
   constructor(
     private navCtrl: NavController,
-    // private db: DbService,
     private fb: FbaseService,
-    // private sqlite: SQLite,
-    private platform: Platform) {
-    this.navCtrl.navigateRoot('/home');
-  }
-
-  ngOnInit(): void {
-    // this.platform.ready().then(() => {
-    // this.db.getContacts();
-
-    this.fb.getAllContacts().subscribe(snapshot => {
-      snapshot.forEach(doc => {
-        this.contact = doc.data();
-        this.contact.id = doc.id;
-        this.contacts.push(this.contact);
-      })
+    private platform: Platform,
+    private db: DbService,
+    private listDataService: ListDataService) {
+    this.platform.ready().then(() => {
+      this.device = this.getDevice();
     });
   }
 
-  delete(id) {
-    this.fb.deleteContact(id);
+  ngOnInit(): void {
+    this.getAllContact();
+    this.fb.getAllContacts().then(data => {
+      this.contacts = data;
+      for (let i = 0; i < this.contacts.length; i++)
+        this.contacts[i].displayName = this.listDataService.setDisplayName(this.contacts[i]);
+    });
+
+    console.log(this.db.getContacts());
   }
 
+  getDevice(): number {
+    if (this.platform.is('ios'))
+      return 1;
+    else if (this.platform.is('android'))
+      return 2;
+    else if (this.platform.is('mobile') || this.platform.is('cordova') || this.platform.is('iphone') || this.platform.is('tablet'))
+      return 3;
+    else
+      return 4;
+  }
+
+  getAllContact() {
+    this.listDataService.sortList(this.fb.isUpdated).then(contacts => {
+      this.groups = contacts;
+    });
+  }
+
+  searching() {
+    if (!this.search) {
+      this.result = this.contacts;
+    } else {
+      this.result = [];
+      this.contacts.filter(x => {
+        if (x.displayName.trim().toLowerCase().includes(this.search.trim().toLowerCase())) {
+          this.result.push(x);
+        }
+      });
+      this.listDataService.sortList(true, this.result).then(data => {
+        this.result = data;
+      });
+    }
+  }
   // async presentModal() {
   //   const modal = await this.modalController.create({
   //     component: AddItemPage,

@@ -66,28 +66,31 @@ export class DbService {
   }
 
   getContacts() {
-    this.sqlite.create({ name: 'data.db', location: 'default' })
-      .then((db: SQLiteObject) => {
-        db.executeSql('SELECT * FROM contact', [])
-          .then(res => {
-            for (var i = 0; i < res.rows.length; i++) {
-              this.contacts.push({
-                id: res.rows.item(i).id,
-                img: res.rows.item(i).img,
-                firstname: res.rows.item(i).firstname,
-                lastname: res.rows.item(i).lastname,
-                companyname: res.rows.item(i).companyname,
-                phonenumber: res.rows.item(i).phonenumber,
-                email: res.rows.item(i).email
-              })
-            }
-          })
-          .catch(e => {
-            console.log(e);
-          });
-      }).catch(e => {
-        console.log(e);
-      });
+    return new Promise(resolve => {
+      this.sqlite.create({ name: 'data.db', location: 'default' })
+        .then((db: SQLiteObject) => {
+          db.executeSql('SELECT * FROM contact', [])
+            .then(res => {
+              for (var i = 0; i < res.rows.length; i++) {
+                this.contacts.push({
+                  id: res.rows.item(i).id,
+                  img: res.rows.item(i).img,
+                  firstname: res.rows.item(i).firstname,
+                  lastname: res.rows.item(i).lastname,
+                  companyname: res.rows.item(i).companyname,
+                  phonenumber: res.rows.item(i).phonenumber,
+                  email: res.rows.item(i).email
+                })
+                resolve(this.contacts);
+              }
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        }).catch(e => {
+          console.log(e);
+        });
+    });
   }
 
   getContact(id) {

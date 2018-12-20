@@ -13,54 +13,53 @@
 </ion-header>
 
 <ion-content>
-
+  <div *ngIf="!groups">
+    <ion-grid class="addBtn">
+      <ion-row class="addBtn" align-items-center>
+        <ion-col style="text-align: center;">
+          <div style="text-align: center;">
+            <ion-icon color="medium" name="person" style="font-size:600%"></ion-icon>
+            <ion-label color="medium">
+              <p style="padding: 10px 0;">You don't have any contacts yet</p>
+            </ion-label>
+            <ion-label color="primary">
+              <h4>CREATE NEW CONTACT</h4>
+            </ion-label>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button>
+        <ion-icon name="keypad"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
+  <ion-searchbar animated="true" [(ngModel)]="search" (ionChange)="searching()" autocomplete="true" showCancelButton="false"></ion-searchbar>
   <ion-list lines="inset">
-    <ion-item-group>
-      <ion-item-divider>
-        <ion-label>A</ion-label>
-      </ion-item-divider>
-      <ion-item-sliding *ngFor="let contact of contacts; let i=index">
-
-        <ion-item href="/additem/{{contact.id}}" routerDirection="root">
-          <div *ngIf="contact.firstname && contact.lastname">
-            <ion-label>{{contact.lastname}} <b>{{contact.firstname}}</b></ion-label>
-          </div>
-          <div *ngIf="!contact.firstname || !contact.lastname">
-            <div *ngIf="!contact.firstname">
-              <div *ngIf="!contact.lastname">
-                <div *ngIf="!contact.companyname">
-                  <div *ngIf="!contact.email">
-                    <div *ngIf="!contact.phonenumber">
-                      <ion-label><b>{{contact.lastname}}</b></ion-label>
-                    </div>
-                  </div>
-                  <div *ngIf="contact.email">
-                    <ion-label><b>{{contact.email}}</b></ion-label>
-                  </div>
-                </div>
-                <div *ngIf="contact.companyname">
-                  <ion-label><b>{{contact.companyname}}</b></ion-label>
-                </div>
-              </div>
-              <div *ngIf="contact.lastname">
-                <ion-label><b>{{contact.lastname}}</b></ion-label>
-              </div>
-            </div>
-            <div *ngIf="contact.firstname">
-              <ion-label><b>{{contact.firstname}}</b></ion-label>
-            </div>
-          </div>
+    <div *ngIf="search">
+      <ion-item-group *ngFor="let group of result; let i=index">
+        <ion-item-divider color="medium">
+          <ion-label>{{group.name}}</ion-label>
+        </ion-item-divider>
+        <ion-item href="/additem/{{contact.id}}" routerDirection="root" *ngFor="let contact of group.contacts; let j=index">
+          <ion-label [innerHTML]="contact.displayName"></ion-label>
         </ion-item>
-        <!-- <ion-item-options side="start">
-          <ion-item-option (click)="favorite(item)">Favorite</ion-item-option>
-          <ion-item-option color="danger" (click)="share(item)">Share</ion-item-option>
-        </ion-item-options> -->
+      </ion-item-group>
+    </div>
+    <div *ngIf="!search">
+      <ion-item-group *ngFor="let group of groups; let i=index">
+        <ion-item-divider color="medium">
+          <ion-label>{{group.name}}</ion-label>
+        </ion-item-divider>
+        <div *ngFor="let contact of group.contacts; let j=index">
+          <ion-item href="/additem/{{contact.id}}" routerDirection="root">
+            <ion-label><b>{{contact.displayName}}</b></ion-label>
+          </ion-item>
+        </div>
 
-        <ion-item-options side="end">
-          <ion-item-option (click)=delete(contact.id)>Delete</ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-item-group>
+      </ion-item-group>
+    </div>
   </ion-list>
 
 

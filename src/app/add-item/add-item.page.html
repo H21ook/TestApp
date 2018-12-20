@@ -5,9 +5,10 @@
         <ion-icon size="large" color="primary" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>New Contact</ion-title>
-    <ion-buttons slot="end" *ngIf="isRead">
-      <ion-button fill="clear" color="primary" (click)="edit()"> Edit</ion-button>
+    <ion-title [innerHTML]="isRead ? displayName : 'New Contact'"></ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" *ngIf="isRead" color="primary" (click)="edit()"> Edit</ion-button>
+      <ion-button fill="clear" *ngIf="!isRead" color="primary" (click)="save()"> Save</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -44,12 +45,16 @@
     <ion-input maxlength="50" [(ngModel)]="contact.companyname" [readonly]="isRead" placeholder="Company name"></ion-input>
   </ion-item>
   <ion-item lines="full">
-    <ion-input type="tel" maxlength="30" [(ngModel)]="contact.phonenumber" [readonly]="isRead" placeholder="Phone number"></ion-input>
-    <ion-icon *ngIf="isRead" name="call" slot="end"></ion-icon>
+    <ion-input type="number" maxlength="30" [(ngModel)]="contact.phonenumber" [readonly]="isRead" placeholder="Phone number"></ion-input>
+    <ion-buttons *ngIf="isRead">
+      <ion-icon class="eventbtn" color="{{contact.phonenumber ? 'dark' : 'medium'}}" (click)="call()" name="call" slot="end"></ion-icon>
+      <ion-icon class="eventbtn" color="{{contact.phonenumber ? 'dark' : 'medium'}}" (click)="message()" name="mail"
+        slot="end"></ion-icon>
+    </ion-buttons>
   </ion-item>
   <ion-item lines="full">
     <ion-input type="email" maxlength="100" [(ngModel)]="contact.email" [readonly]="isRead" placeholder="Email"></ion-input>
   </ion-item>
-  <ion-button *ngIf="!isRead" expand="full" size="default" (click)="save()" color="primary">Save</ion-button>
+  <ion-button *ngIf="isRead" expand="full" size="default" (click)="delete()" color="danger">Delete</ion-button>
 
 </ion-content>

@@ -10,6 +10,10 @@
     padding: 0 !important;
 }
 
+.imgPos:hover {
+    background-color: #f6f6f6;
+}
+
 .img-col {
     padding: 0 !important;
 }
@@ -25,4 +29,14 @@
 
 .iconPos {
     text-align: center;
+}
+
+.eventbtn {
+    padding: 10px;
+    margin-left: 0em !important;
+}
+
+.eventbtn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
 }
